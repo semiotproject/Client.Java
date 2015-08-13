@@ -99,6 +99,7 @@ public class LinkedDataFragmentGraph extends GraphBase {
         return reorderTransform;
     }
 
+    @Override
     protected int graphBaseSize() {
         try{
             return Ints.checkedCast(ldfClient.getBaseFragment().getTriplesSize());
@@ -175,4 +176,8 @@ public class LinkedDataFragmentGraph extends GraphBase {
         return b.toString();
     }
 
+    @Override
+    protected ExtendedIterator<Triple> graphBaseFind(Triple triple) {
+        return graphBaseFind((TripleMatch)triple);
+    }
 }
