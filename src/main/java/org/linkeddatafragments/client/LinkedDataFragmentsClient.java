@@ -19,8 +19,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
+//import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+//import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.linkeddatafragments.model.LinkedDataFragment;
 import org.linkeddatafragments.model.LinkedDataFragmentFactory;
 import org.linkeddatafragments.model.LinkedDataFragmentIterator;
@@ -30,11 +30,13 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.concurrent.Future;
 import java.util.zip.GZIPInputStream;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 public class LinkedDataFragmentsClient {
     protected Graph tripleModel;  //TODO: use this model to check ground patterns without having to actually fetch a fragment if once had a 200 OK then fine and temp store here.
     protected final String dataSource;
-    protected final CloseableHttpAsyncClient httpAsyncClient = HttpAsyncClients.createDefault();
+    protected final HttpClient client = new DefaultHttpClient();
     protected final Cache<String, LinkedDataFragment> fragments = CacheBuilder.newBuilder()
             .maximumSize(10000) //Maximum caching size
             .build();
@@ -142,18 +144,18 @@ public class LinkedDataFragmentsClient {
     }
 
     private HttpResponse getLinkedDataFragment(String method, String fragmentUrl) throws InterruptedException, java.util.concurrent.ExecutionException, IOException {
-        httpAsyncClient.start();
-        HttpRequestBase request;
+        HttpResponse response;        
         if (method.equalsIgnoreCase("GET")) {
-            request = new HttpGet(fragmentUrl);
+            HttpGet request = new HttpGet(fragmentUrl);
+            request.setHeader("Accept", "text/turtle");
+            request.setHeader("Accept-Encoding","gzip");
+            response = client.execute(request);
         } else {
-            request = new HttpHead(fragmentUrl); //TODO what happens if the head is fetched?
+            HttpHead request = new HttpHead(fragmentUrl); //TODO what happens if the head is fetched?
+            request.setHeader("Accept", "text/turtle");
+            request.setHeader("Accept-Encoding","gzip");
+            response = client.execute(request);
         }
-        request.setHeader("Accept", "text/turtle");
-        request.setHeader("Accept-Encoding","gzip");
-        Future<HttpResponse> future = httpAsyncClient.execute(request, null);
-        //TODO return the future instead of synchronizing here...
-        HttpResponse response = future.get();
         //httpAsyncClient.close();
         return response;
     }

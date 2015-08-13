@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import org.junit.Ignore;
 
 public class LinkedDataFragmentsClientTest {
     protected Model model;
@@ -26,6 +27,7 @@ public class LinkedDataFragmentsClientTest {
     }
 
     @Test
+    @Ignore
     public void testSize() {
         assertThat(model.size()).isEqualTo(427670470);
         System.out.println(model.size());
